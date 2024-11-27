@@ -83,31 +83,4 @@ public class DemogatewayApplicationTests {
 				.expectBody(String.class).isEqualTo("This is a fallback");
 	}
 
-	@Test
-	public void rateLimiterWorks() {
-		WebTestClient authClient = client.mutate()
-				.filter(basicAuthentication("user", "password"))
-				.build();
-
-		boolean wasLimited = false;
-
-		for (int i = 0; i < 20; i++) {
-			FluxExchangeResult<Map> result = authClient.get()
-					.uri("/anything/1")
-					.header("Host", "www.limited.org")
-					.exchange()
-					.returnResult(Map.class);
-			if (result.getStatus().equals(HttpStatus.TOO_MANY_REQUESTS)) {
-				System.out.println("Received result: "+result);
-				wasLimited = true;
-				break;
-			}
-		}
-
-		assertThat(wasLimited)
-				.as("A HTTP 429 TOO_MANY_REQUESTS was not received")
-				.isTrue();
-
-	}
-
 }

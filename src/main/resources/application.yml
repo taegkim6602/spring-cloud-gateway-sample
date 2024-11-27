@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+management:
+  health:
+    redis:
+      enabled: false  # Disable Redis health check
+    db:
+      enabled: false  # Disable DB health check if not needed
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,gateway
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true
+        
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.http.server.reactive: DEBUG
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: example_route
+          uri: http://httpbin.org:80
+          predicates:
+            - Path=/get
+        - id: postman_echo_route
+          uri: https://postman-echo.com
+          predicates:
+            - Path=/postman-echo/get
+          filters:
+            - StripPrefix=1
+        - id: reqres_route
+          uri: https://reqres.in   # Remove the explicit :443 and /api
+          predicates:
+            - Path=/reqres/users/{id}
+          filters:
+            - StripPrefix=1        # Remove the 'reqres' prefix
+            - RewritePath=/users/(?<id>.*), /api/users/${id}
+  redis:
+    enabled: false  # Disable Redis
