@@ -5,6 +5,8 @@ spring:
     gateway:
       metrics:
         enabled: true
+        tags:
+          route-id-enabled: true
       routes:
         - id: example_route
           uri: http://httpbin.org:80
