@@ -7,6 +7,11 @@ spring:
         enabled: true
         tags:
           route-id-enabled: true
+      route:
+        metrics:
+          enabled: true
+      observability:
+        enabled: true
       routes:
         - id: example_route
           uri: http://httpbin.org:80
@@ -25,6 +30,7 @@ spring:
           filters:
             - StripPrefix=1
             - RewritePath=/users/(?<id>.*), /api/users/${id}
+
   redis:
     enabled: false
 
@@ -51,6 +57,14 @@ management:
   metrics:
     tags:
       application: gateway-service
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+    web:
+      server:
+        request:
+          autotime:
+            enabled: true
     export:
       prometheus:
         enabled: true
