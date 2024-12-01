@@ -68,6 +68,8 @@ management:
     export:
       prometheus:
         enabled: true
+    enable:
+      all: true
   security:
     enabled: false
 
