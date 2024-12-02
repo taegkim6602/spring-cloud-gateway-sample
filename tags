@@ -78,7 +78,7 @@
 !_TAG_PARSER_VERSION!XML	0.0	/current.age/
 !_TAG_PARSER_VERSION!Yaml	0.0	/current.age/
 !_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
-!_TAG_PROC_CWD	/Users/tg/projects/NIA/sample/fromBasic/spring-cloud-gateway-basic/	//
+!_TAG_PROC_CWD	/Users/tg/projects/NIA/sample/logs/spring-cloud-gateway-sample/	//
 !_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
@@ -178,8 +178,6 @@
 1	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "calcs": ["mean", "max", "sum"],$/;"	s	array:panels.4.options.legend.calcs
 1	grafana/provisioning/dashboards/grafana-dashboard.json	/^    {$/;"	o	array:panels
 1	grafana/provisioning/dashboards/grafana-dashboard.json	/^  "tags": ["gateway", "spring"],$/;"	s	array:tags
-14ca3d90-031b-4d67-9c6e-dfbd4f943988	.idea/workspace.xml	/^      <changelist id="14ca3d90-031b-4d67-9c6e-dfbd4f943988" name="Changes" comment="" \/>$/;"	i
-14ca3d90-031b-4d67-9c6e-dfbd4f943988	.idea/workspace.xml	/^    <list default="true" id="14ca3d90-031b-4d67-9c6e-dfbd4f943988" name="Changes" comment="">$/;"	i
 2	gateway-dashboard.json	/^              {$/;"	o	array:panels.0.fieldConfig.defaults.thresholds.steps
 2	gateway-dashboard.json	/^              {$/;"	o	array:panels.1.fieldConfig.defaults.thresholds.steps
 2	gateway-dashboard.json	/^              {$/;"	o	array:panels.2.fieldConfig.defaults.thresholds.steps
@@ -211,7 +209,7 @@
 2	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "calcs": ["mean", "max", "lastNotNull"],$/;"	s	array:panels.3.options.legend.calcs
 2	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "calcs": ["mean", "max", "sum"],$/;"	s	array:panels.4.options.legend.calcs
 2	grafana/provisioning/dashboards/grafana-dashboard.json	/^    {$/;"	o	array:panels
-2pTIVgxHU4WRdPEvltSayRxLhkz	.idea/workspace.xml	/^  <component name="ProjectId" id="2pTIVgxHU4WRdPEvltSayRxLhkz" \/>$/;"	i
+2peT8sWHQWJQ4IZQA6gZLLW9Rpw	.idea/workspace.xml	/^  <component name="ProjectId" id="2peT8sWHQWJQ4IZQA6gZLLW9Rpw" \/>$/;"	i
 3	gateway-dashboard.json	/^    {$/;"	o	array:panels
 3	grafana/provisioning/dashboards/gateway-dashboard.json	/^    {$/;"	o	array:panels
 3	grafana/provisioning/dashboards/grafana-dashboard.json	/^    {$/;"	o	array:panels
@@ -237,6 +235,8 @@ MAVEN_PROJECTBASEDIR	mvnw.cmd	/^set MAVEN_PROJECTBASEDIR=%MAVEN_BASEDIR%$/;"	v
 MAVEN_PROJECTBASEDIR	mvnw.cmd	/^set MAVEN_PROJECTBASEDIR=%WDIR%$/;"	v
 OkJHome	mvnw.cmd	/^:OkJHome$/;"	l
 PathNormalizer	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^public class PathNormalizer {$/;"	c
+ResponseRowCounterFilter	src/main/java/com/example/demogateway/filters/ResponseRowCounterFilter.java	/^    public ResponseRowCounterFilter(ObjectMapper objectMapper, MeterRegistry meterRegistry) {$/;"	m	class:ResponseRowCounterFilter
+ResponseRowCounterFilter	src/main/java/com/example/demogateway/filters/ResponseRowCounterFilter.java	/^public class ResponseRowCounterFilter implements GlobalFilter, Ordered {$/;"	c
 Running Redis Rate Limiter Test	README.md	/^## Running Redis Rate Limiter Test$/;"	s	chapter:Spring Cloud Gateway Sample
 SERVICE_PATTERNS	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^    private static final Map<String, Pattern> SERVICE_PATTERNS = new HashMap<>();$/;"	f	class:PathNormalizer	file:
 Samples	README.md	/^## Samples$/;"	s	chapter:Spring Cloud Gateway Sample
@@ -292,7 +292,6 @@ anonymousObjectb980c6be0105	gate-test.js	/^    { duration: '30s', target: 20 }, 
 anonymousObjectb980c6be0205	gate-test.js	/^    { duration: '1m', target: 20 },  \/\/ Stay at 20 users for 1 minute$/;"	v	variable:options
 anonymousObjectb980c6be0305	gate-test.js	/^    { duration: '30s', target: 0 },  \/\/ Ramp down to 0 users$/;"	v	variable:options
 artifactId	target/maven-archiver/pom.properties	/^artifactId=spring-cloud-gateway-sample$/;"	k
-artifactId	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.properties	/^artifactId=spring-cloud-gateway-sample$/;"	k
 axisCenteredZero	gateway-dashboard.json	/^            "axisCenteredZero": false,$/;"	b	object:panels.0.fieldConfig.defaults.custom
 axisCenteredZero	gateway-dashboard.json	/^            "axisCenteredZero": false,$/;"	b	object:panels.1.fieldConfig.defaults.custom
 axisCenteredZero	gateway-dashboard.json	/^            "axisCenteredZero": false,$/;"	b	object:panels.2.fieldConfig.defaults.custom
@@ -388,6 +387,7 @@ calcs	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "calcs"
 calcs	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "calcs": ["mean", "max", "lastNotNull"],$/;"	a	object:panels.2.options.legend
 calcs	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "calcs": ["mean", "max", "lastNotNull"],$/;"	a	object:panels.3.options.legend
 calcs	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "calcs": ["mean", "max", "sum"],$/;"	a	object:panels.4.options.legend
+calculateRowCount	src/main/java/com/example/demogateway/filters/ResponseRowCounterFilter.java	/^    private int calculateRowCount(JsonNode jsonNode) {$/;"	m	class:ResponseRowCounterFilter	file:
 checks	api-test.js	/^  let checks = {$/;"	v	function:validateResponse
 circuitBreakerFallbackRouteWorks	src/test/java/com/example/demogateway/DemogatewayApplicationTests.java	/^	public void circuitBreakerFallbackRouteWorks() {$/;"	m	class:DemogatewayApplicationTests
 circuitBreakerRouteWorks	src/test/java/com/example/demogateway/DemogatewayApplicationTests.java	/^	public void circuitBreakerRouteWorks() {$/;"	m	class:DemogatewayApplicationTests
@@ -450,9 +450,9 @@ color	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "color"
 color	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "color": {$/;"	o	object:panels.3.fieldConfig.defaults
 color	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "color": {$/;"	o	object:panels.4.fieldConfig.defaults
 com.example	pom.xml	/^	<groupId>com.example<\/groupId>$/;"	g
-com.example	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^	<groupId>com.example<\/groupId>$/;"	g
 com.example.demogateway	src/main/java/com/example/demogateway/DemogatewayApplication.java	/^package com.example.demogateway;$/;"	p
 com.example.demogateway	src/test/java/com/example/demogateway/DemogatewayApplicationTests.java	/^package com.example.demogateway;$/;"	p
+com.example.demogateway.filters	src/main/java/com/example/demogateway/filters/ResponseRowCounterFilter.java	/^package com.example.demogateway.filters;$/;"	p
 com.example.demogateway.filters	src/main/java/com/example/demogateway/filters/TrafficMetricsFilter.java	/^package com.example.demogateway.filters;$/;"	p
 com.example.demogateway.util	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^package com.example.demogateway.util;$/;"	p
 concat_lines	mvnw	/^concat_lines() {$/;"	f
@@ -474,6 +474,8 @@ custom	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "custo
 custom	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "custom": {$/;"	o	object:panels.3.fieldConfig.defaults
 custom	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "custom": {$/;"	o	object:panels.4.fieldConfig.defaults
 customRouteLocator	src/main/java/com/example/demogateway/DemogatewayApplication.java	/^	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {$/;"	m	class:DemogatewayApplication
+d551e60a-464b-4bcc-9e2a-45dd5fd23223	.idea/workspace.xml	/^      <changelist id="d551e60a-464b-4bcc-9e2a-45dd5fd23223" name="Changes" comment="" \/>$/;"	i
+d551e60a-464b-4bcc-9e2a-45dd5fd23223	.idea/workspace.xml	/^    <list default="true" id="d551e60a-464b-4bcc-9e2a-45dd5fd23223" name="Changes" comment="">$/;"	i
 data	api-test.js	/^        data: 'Mock POST response',$/;"	p	variable:anonymousObject5c24b7970905
 data	api-test.js	/^      body: JSON.stringify({ data: 'Mock response' }),$/;"	p	variable:anonymousObject5c24b7970805
 data	api-test.js	/^    let largePayload = { data: new Array(1000).join('x') };$/;"	p	variable:module.exports.anonymousFunction5c24b7971400.largePayload
@@ -638,6 +640,7 @@ fillOpacity	grafana/provisioning/dashboards/grafana-dashboard.json	/^           
 fillOpacity	grafana/provisioning/dashboards/grafana-dashboard.json	/^            "fillOpacity": 20,$/;"	n	object:panels.2.fieldConfig.defaults.custom
 fillOpacity	grafana/provisioning/dashboards/grafana-dashboard.json	/^            "fillOpacity": 20,$/;"	n	object:panels.3.fieldConfig.defaults.custom
 fillOpacity	grafana/provisioning/dashboards/grafana-dashboard.json	/^            "fillOpacity": 20,$/;"	n	object:panels.4.fieldConfig.defaults.custom
+filter	src/main/java/com/example/demogateway/filters/ResponseRowCounterFilter.java	/^    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {$/;"	m	class:ResponseRowCounterFilter
 filter	src/main/java/com/example/demogateway/filters/TrafficMetricsFilter.java	/^    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {$/;"	m	class:TrafficMetricsFilter
 findBaseDir	mvnw.cmd	/^:findBaseDir$/;"	l
 find_maven_basedir	mvnw	/^find_maven_basedir() {$/;"	f
@@ -647,6 +650,7 @@ fiscalYearStartMonth	grafana/provisioning/dashboards/grafana-dashboard.json	/^  
 from	gateway-dashboard.json	/^    "from": "now-15m",$/;"	s	object:time
 from	grafana/provisioning/dashboards/grafana-dashboard.json	/^    "from": "now-15m",$/;"	s	object:time
 get	api-test.js	/^  get: function(url) {$/;"	m	variable:mockServer
+getOrder	src/main/java/com/example/demogateway/filters/ResponseRowCounterFilter.java	/^    public int getOrder() {$/;"	m	class:ResponseRowCounterFilter
 gradientMode	gateway-dashboard.json	/^            "gradientMode": "none",$/;"	s	object:panels.0.fieldConfig.defaults.custom
 gradientMode	gateway-dashboard.json	/^            "gradientMode": "none",$/;"	s	object:panels.1.fieldConfig.defaults.custom
 gradientMode	gateway-dashboard.json	/^            "gradientMode": "none",$/;"	s	object:panels.2.fieldConfig.defaults.custom
@@ -693,7 +697,6 @@ group	grafana/provisioning/dashboards/grafana-dashboard.json	/^              "gr
 group	grafana/provisioning/dashboards/grafana-dashboard.json	/^              "group": "A",$/;"	s	object:panels.3.fieldConfig.defaults.custom.stacking
 group	grafana/provisioning/dashboards/grafana-dashboard.json	/^              "group": "A",$/;"	s	object:panels.4.fieldConfig.defaults.custom.stacking
 groupId	target/maven-archiver/pom.properties	/^groupId=com.example$/;"	k
-groupId	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.properties	/^groupId=com.example$/;"	k
 h	gateway-dashboard.json	/^        "h": 8,$/;"	n	object:panels.0.gridPos
 h	gateway-dashboard.json	/^        "h": 8,$/;"	n	object:panels.1.gridPos
 h	gateway-dashboard.json	/^        "h": 8,$/;"	n	object:panels.2.gridPos
@@ -759,7 +762,6 @@ init	mvnw.cmd	/^:init$/;"	l
 initialize	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^    private void initialize() {$/;"	m	class:PathNormalizer	file:
 initializeServicePatterns	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^    private void initializeServicePatterns() {$/;"	m	class:PathNormalizer	file:
 java.version	pom.xml	/^		<java.version>1.8<\/java.version>$/;"	p
-java.version	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^		<java.version>1.8<\/java.version>$/;"	p
 k6	api-test.js	/^const k6 = require('k6');$/;"	C
 label	gateway-dashboard.json	/^        "label": "Route",$/;"	s	object:templating.list.0
 label	grafana/provisioning/dashboards/grafana-dashboard.json	/^        "label": "Route",$/;"	s	object:templating.list.0
@@ -846,6 +848,7 @@ list	grafana/provisioning/dashboards/grafana-dashboard.json	/^    "list": [$/;"	
 liveNow	gateway-dashboard.json	/^  "liveNow": false,$/;"	b
 liveNow	grafana/provisioning/dashboards/gateway-dashboard.json	/^  "liveNow": false,$/;"	b
 liveNow	grafana/provisioning/dashboards/grafana-dashboard.json	/^  "liveNow": false,$/;"	b
+logger	src/main/java/com/example/demogateway/filters/ResponseRowCounterFilter.java	/^    private static final Logger logger = LoggerFactory.getLogger(ResponseRowCounterFilter.class)/;"	f	class:ResponseRowCounterFilter	file:
 logger	src/main/java/com/example/demogateway/filters/TrafficMetricsFilter.java	/^    private static final Logger logger = LoggerFactory.getLogger(TrafficMetricsFilter.class);$/;"	f	class:TrafficMetricsFilter	file:
 logger	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^    private static final Logger logger = LoggerFactory.getLogger(PathNormalizer.class);$/;"	f	class:PathNormalizer	file:
 main	src/main/java/com/example/demogateway/DemogatewayApplication.java	/^	public static void main(String[] args) {$/;"	m	class:DemogatewayApplication
@@ -863,12 +866,12 @@ mappings	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "map
 mappings	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "mappings": [],$/;"	a	object:panels.2.fieldConfig.defaults
 mappings	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "mappings": [],$/;"	a	object:panels.3.fieldConfig.defaults
 mappings	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "mappings": [],$/;"	a	object:panels.4.fieldConfig.defaults
+meterRegistry	src/main/java/com/example/demogateway/filters/ResponseRowCounterFilter.java	/^    private final MeterRegistry meterRegistry;$/;"	f	class:ResponseRowCounterFilter	file:
 meterRegistry	src/main/java/com/example/demogateway/filters/TrafficMetricsFilter.java	/^    private final MeterRegistry meterRegistry;$/;"	f	class:TrafficMetricsFilter	file:
 method	gate-test.js	/^      method: 'GET',$/;"	p	property:anonymousFunctionb980c6be0400.requests.httpbin
 method	gate-test.js	/^      method: 'GET',$/;"	p	property:anonymousFunctionb980c6be0400.requests.postman-echo
 method	gate-test.js	/^      method: 'GET',$/;"	p	property:anonymousFunctionb980c6be0400.requests.reqres
 micrometer.version	pom.xml	/^    <micrometer.version>1.11.0<\/micrometer.version>$/;"	p
-micrometer.version	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^    <micrometer.version>1.11.0<\/micrometer.version>$/;"	p
 mockServer	api-test.js	/^let mockServer = {$/;"	v
 mode	gateway-dashboard.json	/^              "mode": "line"$/;"	s	object:panels.1.fieldConfig.defaults.custom.thresholdsStyle
 mode	gateway-dashboard.json	/^              "mode": "line"$/;"	s	object:panels.2.fieldConfig.defaults.custom.thresholdsStyle
@@ -954,8 +957,8 @@ normalizePath	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^ 
 normalizeQueryParam	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^    private String normalizeQueryParam(String param) {$/;"	m	class:PathNormalizer	file:
 normalizeQueryParams	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^    private String normalizeQueryParams(String path) {$/;"	m	class:PathNormalizer	file:
 normalizeServicePath	src/main/java/com/example/demogateway/util/PathNormalizer.java	/^    private String normalizeServicePath(String path, String serviceId) {$/;"	m	class:PathNormalizer	file:
-ns1d0885570101	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^	xsi:schemaLocation="http:\/\/maven.apache.org\/POM\/4.0.0 http:\/\/maven.apache.org\/xsd\/maven/;"	n	uri:http://maven.apache.org/POM/4.0.0
 nsbbf684f00101	pom.xml	/^	xsi:schemaLocation="http:\/\/maven.apache.org\/POM\/4.0.0 http:\/\/maven.apache.org\/xsd\/maven/;"	n	uri:http://maven.apache.org/POM/4.0.0
+objectMapper	src/main/java/com/example/demogateway/filters/ResponseRowCounterFilter.java	/^    private final ObjectMapper objectMapper;$/;"	f	class:ResponseRowCounterFilter	file:
 options	gate-test.js	/^export const options = {$/;"	v
 options	gateway-dashboard.json	/^        "options": [],$/;"	a	object:templating.list.0
 options	gateway-dashboard.json	/^      "options": {$/;"	o	object:panels.0
@@ -1028,9 +1031,7 @@ postData	api-test.js	/^let postData = [$/;"	v
 postData	test_2.js	/^const postData = [$/;"	v
 postman-echo	gate-test.js	/^    'postman-echo': {$/;"	p	variable:anonymousFunctionb980c6be0400.requests
 project.build.sourceEncoding	pom.xml	/^		<project.build.sourceEncoding>UTF-8<\/project.build.sourceEncoding>$/;"	p
-project.build.sourceEncoding	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^		<project.build.sourceEncoding>UTF-8<\/project.build.sourceEncoding>$/;"	p
 project.reporting.outputEncoding	pom.xml	/^		<project.reporting.outputEncoding>UTF-8<\/project.reporting.outputEncoding>$/;"	p
-project.reporting.outputEncoding	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^		<project.reporting.outputEncoding>UTF-8<\/project.reporting.outputEncoding>$/;"	p
 query	gateway-dashboard.json	/^          "query": "label_values(spring_cloud_gateway_requests_seconds_count, routeId)",$/;"	s	object:templating.list.0.query
 query	gateway-dashboard.json	/^        "query": {$/;"	o	object:templating.list.0
 query	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "query": "label_values(spring_cloud_gateway_requests_seconds_count, routeId)",$/;"	s	object:templating.list.0.query
@@ -1152,13 +1153,9 @@ spanNulls	grafana/provisioning/dashboards/grafana-dashboard.json	/^            "
 spanNulls	grafana/provisioning/dashboards/grafana-dashboard.json	/^            "spanNulls": false,$/;"	b	object:panels.3.fieldConfig.defaults.custom
 spanNulls	grafana/provisioning/dashboards/grafana-dashboard.json	/^            "spanNulls": false,$/;"	b	object:panels.4.fieldConfig.defaults.custom
 spring-cloud-gateway-sample	pom.xml	/^	<artifactId>spring-cloud-gateway-sample<\/artifactId>$/;"	a	groupId:com.example
-spring-cloud-gateway-sample	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^	<artifactId>spring-cloud-gateway-sample<\/artifactId>$/;"	a	groupId:com.example
 spring-cloud.version	pom.xml	/^		<spring-cloud.version>2021.0.0<\/spring-cloud.version>$/;"	p
-spring-cloud.version	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^		<spring-cloud.version>2021.0.0<\/spring-cloud.version>$/;"	p
 spring-milestones	pom.xml	/^			<id>spring-milestones<\/id>$/;"	r
-spring-milestones	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^			<id>spring-milestones<\/id>$/;"	r
 spring-snapshots	pom.xml	/^			<id>spring-snapshots<\/id>$/;"	r
-spring-snapshots	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^			<id>spring-snapshots<\/id>$/;"	r
 springWebFilterChain	src/main/java/com/example/demogateway/DemogatewayApplication.java	/^	SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) throws Exception {$/;"	m	class:DemogatewayApplication
 stacking	gateway-dashboard.json	/^            "stacking": {$/;"	o	object:panels.0.fieldConfig.defaults.custom
 stacking	gateway-dashboard.json	/^            "stacking": {$/;"	o	object:panels.1.fieldConfig.defaults.custom
@@ -1492,7 +1489,6 @@ value	grafana/provisioning/dashboards/grafana-dashboard.json	/^          "value"
 version	gateway-dashboard.json	/^  "version": 1,$/;"	n
 version	grafana/provisioning/dashboards/grafana-dashboard.json	/^  "version": 1,$/;"	n
 version	target/maven-archiver/pom.properties	/^version=0.0.1-SNAPSHOT$/;"	k
-version	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.properties	/^version=0.0.1-SNAPSHOT$/;"	k
 viz	gateway-dashboard.json	/^              "viz": false$/;"	b	object:panels.0.fieldConfig.defaults.custom.hideFrom
 viz	gateway-dashboard.json	/^              "viz": false$/;"	b	object:panels.1.fieldConfig.defaults.custom.hideFrom
 viz	gateway-dashboard.json	/^              "viz": false$/;"	b	object:panels.2.fieldConfig.defaults.custom.hideFrom
@@ -1545,7 +1541,6 @@ x	grafana/provisioning/dashboards/grafana-dashboard.json	/^        "x": 12,$/;"	
 x	grafana/provisioning/dashboards/grafana-dashboard.json	/^        "x": 12,$/;"	n	object:panels.3.gridPos
 xsi	pom.xml	/^	xsi:schemaLocation="http:\/\/maven.apache.org\/POM\/4.0.0 http:\/\/maven.apache.org\/xsd\/maven/;"	n	uri:http://www.w3.org/2001/XMLSchema-instance
 xsi	target/surefire-reports/TEST-com.example.demogateway.DemogatewayApplicationTests.xml	/^<testsuite xmlns:xsi="http:\/\/www.w3.org\/2001\/XMLSchema-instance" xsi:noNamespaceSchemaLocati/;"	n	uri:http://www.w3.org/2001/XMLSchema-instance
-xsi	temp/META-INF/maven/com.example/spring-cloud-gateway-sample/pom.xml	/^	xsi:schemaLocation="http:\/\/maven.apache.org\/POM\/4.0.0 http:\/\/maven.apache.org\/xsd\/maven/;"	n	uri:http://www.w3.org/2001/XMLSchema-instance
 y	gateway-dashboard.json	/^        "y": 0$/;"	n	object:panels.0.gridPos
 y	gateway-dashboard.json	/^        "y": 0$/;"	n	object:panels.1.gridPos
 y	gateway-dashboard.json	/^        "y": 8$/;"	n	object:panels.2.gridPos

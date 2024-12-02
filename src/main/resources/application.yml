@@ -7,12 +7,16 @@ spring:
         enabled: true
         tags:
           route-id-enabled: true
-      route:
-        metrics:
-          enabled: true
       observability:
         enabled: true
+
       routes:
+        - id: data_go_kr_route
+          uri: http://apis.data.go.kr
+          predicates:
+            - Path=/data_get
+          filters:
+            - RewritePath=/data_get, /1140100/minAnalsInfoView5/minRisingKeyword5?serviceKey=o2wYi7NZQjx%2BHkz6KAjGqQHofPOWE8jyiwDVwcUeSMJveQMEMFGtVbTJpneZpXVFLJG2conCgcN%2FXEiYG2ejRw%3D%3D&dataType=json&analysisTime=2021050614&maxResult=10&target=pttn,dfpt,saeol&mainSubCode=1140100
         - id: example_route
           uri: http://httpbin.org:80
           predicates:
@@ -30,6 +34,12 @@ spring:
           filters:
             - StripPrefix=1
             - RewritePath=/users/(?<id>.*), /api/users/${id}
+        - id: test_route
+          uri: https://jsonplaceholder.typicode.com
+          predicates:
+            - Path=/test/**
+          filters:
+            - RewritePath=/test/(?<segment>.*), /${segment}
 
   redis:
     enabled: false
@@ -78,3 +88,6 @@ logging:
     root: INFO
     org.springframework.cloud.gateway: DEBUG
     org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.netty: DEBUG
+    com.example.demogateway.filters: DEBUG

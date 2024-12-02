@@ -20,4 +20,5 @@ _site/
 *.swo
 tags/
 temp/
-*.DS_Store
+.DS_Store
+**/.DS_Store
