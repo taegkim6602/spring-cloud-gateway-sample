@@ -7,8 +7,6 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-    volumes:
-      - ./logs:/var/log
     networks:
       - monitoring-network
     healthcheck:
@@ -53,26 +51,20 @@ services:
       - monitoring-network
     depends_on:
       - prometheus
-      - loki
 
   loki:
-    image: grafana/loki:2.8.0
-    container_name: loki
+    image: grafana/loki:latest
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - ./loki:/etc/loki
-      - loki_data:/loki
     networks:
       - monitoring-network
 
   promtail:
-    image: grafana/promtail:2.8.0
-    container_name: promtail
+    image: grafana/promtail:latest
     volumes:
-      - ./logs:/var/log
-      - ./promtail:/etc/promtail
+      - /var/log:/var/log
+      - ./promtail-config.yml:/etc/promtail/config.yml
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     command: -config.file=/etc/promtail/config.yml
     networks:
@@ -83,7 +75,6 @@ services:
 volumes:
   prometheus_data:
   grafana_data:
-  loki_data:
 
 networks:
   monitoring-network:

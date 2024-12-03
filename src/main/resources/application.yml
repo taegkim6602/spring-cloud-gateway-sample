@@ -9,7 +9,6 @@ spring:
           route-id-enabled: true
       observability:
         enabled: true
-
       routes:
         - id: data_go_kr_route
           uri: http://apis.data.go.kr
@@ -56,13 +55,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,metrics,prometheus,gateway
+        include: health,metrics,prometheus,gateway,logfile
   endpoint:
     health:
       show-details: always
     metrics:
       enabled: true
     prometheus:
+      enabled: true
+    logfile:
       enabled: true
   metrics:
     tags:
@@ -80,14 +81,19 @@ management:
         enabled: true
     enable:
       all: true
-  security:
-    enabled: false
 
 logging:
+  file:
+    name: /var/log/spring-cloud-gateway.log
+    max-size: 10MB
+    max-history: 7
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} trace_id=%X{trace_id} span_id=%X{span_id} - %msg%n"
   level:
     root: INFO
     org.springframework.cloud.gateway: DEBUG
     org.springframework.http.server.reactive: DEBUG
     org.springframework.web.reactive: DEBUG
     reactor.netty: DEBUG
-    com.example.demogateway.filters: DEBUG
+    com.example: DEBUG

@@ -6,5 +6,21 @@ datasources:
     access: proxy
     url: http://prometheus:9090
     isDefault: true
-    uid: prometheus    # This must match the uid in dashboard panels
+    uid: prometheus # This must match the uid in dashboard panels
     editable: false
+
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100 # Assuming Loki is running in the same Docker network
+    uid: loki # This must match the uid used in dashboard panels
+    isDefault: false
+    editable: false
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - datasourceUid: prometheus # Links to Prometheus for trace correlation
+          matcherRegex: "trace_id=(\\w+)"
+          name: TraceID
+          url: "$${__value.raw}"
+    version: 1
