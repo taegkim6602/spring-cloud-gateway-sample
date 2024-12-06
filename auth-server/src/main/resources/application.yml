@@ -3,7 +3,10 @@ spring:
     name: auth-service
 
   redis:
-    enabled: false
+    enabled: true
+    host: localhost
+    port: 6379
+    password: 1234
 
 server:
   port: 8081

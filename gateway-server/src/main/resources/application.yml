@@ -40,12 +40,20 @@ spring:
             - Path=/test/**
           filters:
             - RewritePath=/test/(?<segment>.*), /${segment}
-
   redis:
-    enabled: false
+    host: ${SPRING_REDIS_HOST:localhost}
+    port: ${SPRING_REDIS_PORT:6379}
+    password: 1234
+    timeout: 2000
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 2
+        max-wait: -1ms
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 management:
   health:
@@ -85,7 +93,7 @@ management:
 
 logging:
   file:
-    name: /var/log/spring-cloud-gateway.log
+    name: log/spring-cloud-gateway.log
     max-size: 10MB
     max-history: 7
   pattern:
@@ -93,8 +101,11 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} trace_id=%X{trace_id} span_id=%X{span_id} - %msg%n"
   level:
     root: INFO
-    org.springframework.cloud.gateway: DEBUG
     org.springframework.http.server.reactive: DEBUG
     org.springframework.web.reactive: DEBUG
     reactor.netty: DEBUG
     com.example: DEBUG
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.cloud.gateway.route: TRACE
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
+    org.springframework.web.server.handler.FilteringWebHandler: TRACE

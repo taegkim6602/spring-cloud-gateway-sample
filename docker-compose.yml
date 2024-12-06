@@ -1,7 +1,16 @@
-version: "3.8"
 services:
+  auth-service:
+    image: spring-auth-service
+    container_name: auth
+    ports:
+      - "8081:8081"
+      - "6379:6379"
+    volumes:
+      - ./redis.conf:/etc/redis/redis.conf
+    networks:
+      - app-network
+
   gateway-service-1:
-    build: ./gateway
     image: spring-cloud-gateway-basic
     ports:
       - "8080:8080"
@@ -9,19 +18,25 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8080
       - SPRING_APPLICATION_NAME=gateway-service-1
+      - SPRING_REDIS_HOST=auth-service
+      - LOGGING_FILE_NAME=/var/log/spring-cloud-gateway.log
+      - 'LOGGING_PATTERN_CONSOLE={"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","message":"%m","logger":"%c","spring.application.name":"$${spring.application.name}"}%n'
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     volumes:
-      - ./logs/gateway1:/var/log
+      - gateway1_logs:/var/log
     networks:
       - app-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
+      - auth-service
       - prometheus
       - loki
       - grafana
 
   gateway-service-2:
-    build: ./gateway
     image: spring-cloud-gateway-basic
     ports:
       - "8082:8082"
@@ -29,19 +44,27 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8082
       - SPRING_APPLICATION_NAME=gateway-service-2
+      - SPRING_REDIS_HOST=auth-service
+      - LOGGING_FILE_NAME=/var/log/spring-cloud-gateway.log
+      - 'LOGGING_PATTERN_CONSOLE={"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","message":"%m","logger":"%c","spring.application.name":"$${spring.application.name}"}%n'
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     volumes:
-      - ./logs/gateway2:/var/log
+      - gateway2_logs:/var/log
     networks:
       - app-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
+      - auth-service
       - prometheus
       - loki
       - grafana
 
   nginx:
     image: nginx:latest
+    container_name: nginx
     ports:
       - "80:80"
     volumes:
@@ -52,51 +75,71 @@ services:
       - gateway-service-1
       - gateway-service-2
 
-  auth-service:
-    image: spring-auth-service
-    ports:
-      - "8081:8081"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    volumes:
-      - ./logs/auth:/var/log
-    networks:
-      - app-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    depends_on:
-      - prometheus
-      - loki
-      - grafana
-
   prometheus:
     image: prom/prometheus:latest
+    container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-lifecycle"
     networks:
       - app-network
-
   loki:
     image: grafana/loki:latest
+    container_name: loki
     ports:
       - "3100:3100"
     volumes:
       - ./loki/local-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --tries=1 -O- http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
   grafana:
     image: grafana/grafana:latest
+    container_name: grafana
     ports:
       - "3000:3000"
     volumes:
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     networks:
       - app-network
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - ./promtail/config.yml:/etc/promtail/config.yml
+      - gateway1_logs:/var/log/gateway1:ro
+      - gateway2_logs:/var/log/gateway2:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - app-network
+    depends_on:
+      loki:
+        condition: service_healthy
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+  gateway1_logs:
+  gateway2_logs:
 
 networks:
   app-network:
