@@ -1,4 +1,4 @@
-package com.example.demogateway;
+package com.example.auth;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @SpringBootApplication
-public class DemogatewayApplication {
-	private static final Logger logger = LoggerFactory.getLogger(DemogatewayApplication.class);
+public class AuthServiceApplication {
+	private static final Logger logger = LoggerFactory.getLogger(AuthServiceApplication.class);
 	public static void main(String[] args) {
 
 		logger.info("Starting Authorization Server...");
-		SpringApplication.run(DemogatewayApplication.class, args);
+		SpringApplication.run(AuthServiceApplication.class, args);
 		logger.info("Authorization Server is running!");
 	}
 

@@ -5,8 +5,16 @@ services:
     ports:
       - "8081:8081"
       - "6379:6379"
+      - "5432:5432"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/authdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
     volumes:
       - ./redis.conf:/etc/redis/redis.conf
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
 
@@ -135,6 +143,7 @@ services:
         condition: service_healthy
 
 volumes:
+  postgres_data:
   prometheus_data:
   grafana_data:
   loki_data:
