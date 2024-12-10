@@ -40,10 +40,25 @@ spring:
             - Path=/test/**
           filters:
             - RewritePath=/test/(?<segment>.*), /${segment}
+
+  datasource:
+    url: jdbc:postgresql://${SPRING_DATASOURCE_HOST:localhost}:${SPRING_DATASOURCE_PORT:5432}/${SPRING_DATASOURCE_DB:routingdb}
+    username: ${SPRING_DATASOURCE_USERNAME:admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret123}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
   redis:
     host: ${SPRING_REDIS_HOST:localhost}
     port: ${SPRING_REDIS_PORT:6379}
-    password: 1234
+    password: ${SPRING_REDIS_PASSWORD:1234}
     timeout: 2000
     lettuce:
       pool:
@@ -51,6 +66,7 @@ spring:
         max-idle: 8
         min-idle: 2
         max-wait: -1ms
+    connect-timeout: 5000
 
 server:
   port: ${SERVER_PORT:8080}
@@ -73,6 +89,8 @@ management:
     prometheus:
       enabled: true
     logfile:
+      enabled: true
+    gateway:
       enabled: true
   metrics:
     tags:
@@ -109,3 +127,6 @@ logging:
     org.springframework.cloud.gateway.route: TRACE
     org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
     org.springframework.web.server.handler.FilteringWebHandler: TRACE
+    redis.clients: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

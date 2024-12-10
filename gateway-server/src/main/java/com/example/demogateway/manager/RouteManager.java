@@ -21,7 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 @Component
 public class RouteManager {
@@ -32,6 +34,7 @@ public class RouteManager {
     private final RedisMessageListenerContainer messageListenerContainer;
     private final ApplicationEventPublisher eventPublisher;
     private static final String ROUTE_CHANNEL = "route:updates";
+    private static final String ROUTE_KEY_PREFIX = "route:definition:";
     private static final Logger log = LoggerFactory.getLogger(RouteManager.class);
 
     public RouteManager(RedisConnectionFactory connectionFactory,
@@ -71,7 +74,27 @@ public class RouteManager {
                 new PatternTopic(ROUTE_CHANNEL)
         );
         messageListenerContainer.start();
+        loadRoutesFromRedis();
         log.info("Route manager initialized and listening for updates");
+    }
+
+    private void loadRoutesFromRedis() {
+        try {
+            Set<String> keys = redisTemplate.keys(ROUTE_KEY_PREFIX + "*");
+            if (keys != null) {
+                for (String key : keys) {
+                    String json = redisTemplate.opsForValue().get(key);
+                    if (json != null) {
+                        RouteDefinition route = objectMapper.readValue(json, RouteDefinition.class);
+                        localRoutes.put(route.getId(), route);
+                        routeDefinitionWriter.save(Mono.just(route)).subscribe();
+                    }
+                }
+                refreshRoutes();
+            }
+        } catch (Exception e) {
+            log.error("Error loading routes from Redis", e);
+        }
     }
 
     @PreDestroy
@@ -86,9 +109,12 @@ public class RouteManager {
         return Mono.just(route)
                 .doOnNext(r -> {
                     log.info("Received route definition: {}", r);
-                    log.info("Route ID: {}", r.getId());
-                    log.info("Route URI: {}", r.getUri());
-                    log.info("Route Predicates: {}", r.getPredicates());
+                    try {
+                        String json = objectMapper.writeValueAsString(r);
+                        redisTemplate.opsForValue().set(ROUTE_KEY_PREFIX + r.getId(), json);
+                    } catch (JsonProcessingException e) {
+                        log.error("Error saving route to Redis", e);
+                    }
                 })
                 .flatMap(r -> routeDefinitionWriter.save(Mono.just(r))
                         .doOnSubscribe(subscription -> log.info("Starting to save route: {}", r.getId()))
@@ -107,26 +133,31 @@ public class RouteManager {
     }
 
     public Mono<Void> deleteRoute(String routeId) {
-        return Mono.justOrEmpty(routeId)
-                .doOnNext(id -> {
-                    if (!localRoutes.containsKey(id)) {
-                        throw new RuntimeException("Route not found: " + id);
-                    }
-                })
-                .flatMap(id -> routeDefinitionWriter.delete(Mono.just(id)))
-                .doOnSuccess(v -> {
-                    localRoutes.remove(routeId);
-                    try {
-                        publishRouteUpdate(new RouteUpdateMessage(
-                                RouteAction.DELETE,
-                                routeId,
-                                System.currentTimeMillis()
-                        ));
-                        refreshRoutes();
-                    } catch (Exception e) {
-                        log.error("Error publishing route deletion", e);
-                    }
-                });
+        return Mono.defer(() -> {
+            String redisKey = ROUTE_KEY_PREFIX + routeId;
+            Boolean exists = redisTemplate.hasKey(redisKey);
+            
+            if (Boolean.TRUE.equals(exists)) {
+                redisTemplate.delete(redisKey);
+                return routeDefinitionWriter.delete(Mono.just(routeId))
+                        .doOnSuccess(v -> {
+                            localRoutes.remove(routeId);
+                            try {
+                                publishRouteUpdate(new RouteUpdateMessage(
+                                        RouteAction.DELETE,
+                                        routeId,
+                                        System.currentTimeMillis()
+                                ));
+                                refreshRoutes();
+                            } catch (Exception e) {
+                                log.error("Error publishing route deletion", e);
+                            }
+                        });
+            } else {
+                log.warn("Route not found in Redis: {}", routeId);
+                return Mono.error(new RuntimeException("Route not found: " + routeId));
+            }
+        });
     }
 
     private void publishRouteUpdate(RouteUpdateMessage message) throws JsonProcessingException {
