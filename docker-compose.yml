@@ -1,74 +1,162 @@
 services:
-  auth-service:
+  auth-service-1:
     image: spring-auth-service
-    container_name: auth
+    container_name: auth-service-1
     ports:
       - "8081:8081"
       - "6379:6379"
       - "5432:5432"
+      - "26379:26379"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/authdb
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8081
+      - SPRING_APPLICATION_NAME=auth-service-1
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-1:5432/authdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1234
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_SHOW_SQL=true
+      - REDIS_MODE=master
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=1234
+      - REDIS_SENTINEL_PORT=26379
+      - SPRING_REDIS_SENTINEL_MASTER=auth-master
+      - SPRING_REDIS_SENTINEL_NODES=auth-service-1:26379,auth-service-2:26379
     volumes:
-      - ./redis.conf:/etc/redis/redis.conf
+      - ./redis/auth-master.conf:/etc/redis/redis.conf
+      - ./redis/auth-sentinel.conf:/etc/redis/sentinel.conf
+      - ./redis/auth-data-1:/data
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres && redis-cli -a 1234 ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-service-2:
+    image: spring-auth-service
+    container_name: auth-service-2
+    ports:
+      - "8083:8083"
+      - "6380:6379"
+      - "26380:26379"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8083
+      - SPRING_APPLICATION_NAME=auth-service-2
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-1:5432/authdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - REDIS_MODE=slave
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=1234
+      - REDIS_SENTINEL_PORT=26379
+      - REDIS_MASTER_HOST=auth-service-1
+      - SPRING_REDIS_SENTINEL_MASTER=auth-master
+      - SPRING_REDIS_SENTINEL_NODES=auth-service-1:26379,auth-service-2:26379
+    volumes:
+      - ./redis/auth-slave.conf:/etc/redis/redis.conf
+      - ./redis/auth-sentinel.conf:/etc/redis/sentinel.conf
+      - ./redis/auth-data-2:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "1234", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      auth-service-1:
+        condition: service_healthy
 
   gateway-service-1:
     image: spring-cloud-gateway-basic
+    container_name: gateway-service-1
     ports:
       - "8080:8080"
+      - "6381:6379"
+      - "26381:26379"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8080
       - SPRING_APPLICATION_NAME=gateway-service-1
-      - SPRING_REDIS_HOST=auth-service
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-1:5432/authdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - REDIS_MODE=master
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=1234
+      - REDIS_SENTINEL_PORT=26379
+      - SPRING_REDIS_SENTINEL_NODES=gateway-service-1:26379,gateway-service-2:26379
       - LOGGING_FILE_NAME=/var/log/spring-cloud-gateway.log
       - 'LOGGING_PATTERN_CONSOLE={"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","message":"%m","logger":"%c","spring.application.name":"$${spring.application.name}"}%n'
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     volumes:
+      - ./redis/gateway-master.conf:/etc/redis/redis.conf
+      - ./redis/gateway-sentinel.conf:/etc/redis/sentinel.conf
+      - ./redis/gateway-data-1:/data
       - gateway1_logs:/var/log
     networks:
       - app-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "1234", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     depends_on:
-      - auth-service
-      - prometheus
-      - loki
-      - grafana
+      auth-service-1:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
+      loki:
+        condition: service_healthy
+      grafana:
+        condition: service_started
 
   gateway-service-2:
     image: spring-cloud-gateway-basic
+    container_name: gateway-service-2
     ports:
       - "8082:8082"
+      - "6382:6379"
+      - "26382:26379"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8082
       - SPRING_APPLICATION_NAME=gateway-service-2
-      - SPRING_REDIS_HOST=auth-service
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-1:5432/authdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - REDIS_MODE=slave
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=1234
+      - REDIS_SENTINEL_PORT=26379
+      - REDIS_MASTER_HOST=gateway-service-1
+      - SPRING_REDIS_SENTINEL_NODES=gateway-service-1:26379,gateway-service-2:26379
       - LOGGING_FILE_NAME=/var/log/spring-cloud-gateway.log
       - 'LOGGING_PATTERN_CONSOLE={"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","message":"%m","logger":"%c","spring.application.name":"$${spring.application.name}"}%n'
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
     volumes:
+      - ./redis/gateway-slave.conf:/etc/redis/redis.conf
+      - ./redis/gateway-sentinel.conf:/etc/redis/sentinel.conf
+      - ./redis/gateway-data-2:/data
       - gateway2_logs:/var/log
     networks:
       - app-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "1234", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     depends_on:
-      - auth-service
-      - prometheus
-      - loki
-      - grafana
+      gateway-service-1:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
+      loki:
+        condition: service_healthy
+      grafana:
+        condition: service_started
 
   nginx:
     image: nginx:latest
@@ -80,8 +168,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - gateway-service-1
-      - gateway-service-2
+      gateway-service-1:
+        condition: service_healthy
+      gateway-service-2:
+        condition: service_healthy
 
   prometheus:
     image: prom/prometheus:latest
@@ -99,6 +189,7 @@ services:
       - "--web.enable-lifecycle"
     networks:
       - app-network
+
   loki:
     image: grafana/loki:latest
     container_name: loki

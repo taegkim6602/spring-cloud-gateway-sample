@@ -7,6 +7,15 @@ spring:
     host: localhost
     port: 6379
     password: 1234
+    cache:
+      time-to-live: 3600
+      enable-warm-up: true
+      warm-up-retry-count: 3
+      warm-up-retry-delay: 5000
+      cache-prefix: "route:"
+      lock-key: "cache_warming_lock"
+      lock-timeout: 30000
+      batch-size: 1000
 
   datasource:
     url: jdbc:postgresql://localhost:5432/authdb

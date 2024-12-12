@@ -16,6 +16,7 @@ RUN apt-get update && \
     postgresql \
     postgresql-contrib \
     redis-server \
+    redis-sentinel \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -26,18 +27,15 @@ RUN PG_VERSION=$(ls /usr/lib/postgresql/) && \
     mkdir -p /var/lib/postgresql/data && \
     chown postgres:postgres /var/lib/postgresql/data && \
     mkdir -p /etc/postgresql/${PG_VERSION}/main && \
-    chown postgres:postgres /etc/postgresql/${PG_VERSION}/main
+    chown -R postgres:postgres /etc/postgresql/${PG_VERSION}/main
 
 # Initialize PostgreSQL database
 USER postgres
 RUN PG_VERSION=$(ls /usr/lib/postgresql/) && \
-    /usr/lib/postgresql/${PG_VERSION}/bin/initdb -D /var/lib/postgresql/data
+    /usr/lib/postgresql/${PG_VERSION}/bin/initdb -D /var/lib/postgresql/data && \
+    echo "host all all 0.0.0.0/0 md5" >> /var/lib/postgresql/data/pg_hba.conf && \
+    echo "listen_addresses='*'" >> /var/lib/postgresql/data/postgresql.conf
 USER root
-
-# Configure PostgreSQL
-RUN PG_VERSION=$(ls /usr/lib/postgresql/) && \
-    echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/${PG_VERSION}/main/pg_hba.conf && \
-    echo "listen_addresses='*'" >> /etc/postgresql/${PG_VERSION}/main/postgresql.conf
 
 # Copy application files
 COPY --from=build /app/target/*.jar app.jar
@@ -49,6 +47,5 @@ RUN chmod +x /app/start.sh
 RUN mkdir -p /var/log/postgresql && \
     chown postgres:postgres /var/log/postgresql
 
-EXPOSE 8081 6379 5432
+EXPOSE 8081 6379 5432 26379
 ENTRYPOINT ["/app/start.sh"]
-

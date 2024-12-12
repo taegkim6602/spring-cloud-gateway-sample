@@ -29,4 +29,12 @@ INSERT INTO routing_rules (
     '[{"name":"StripPrefix","args":{"parts":"1"}}]',
     1,
     true
-) ON CONFLICT (route_id) DO NOTHING;
+) ,
+ (
+             'dummy_route',
+             '[{"name":"Path","args":{"_genkey_0":"/dummy_get/**"}}]',
+             'https://dummyjson.com',
+             '[{"name":"RewritePath","args":{"_genkey_0":"/dummy_get/(?<segment>.*)","_genkey_1":"/${segment}"}}]',
+             1,
+             true
+         ) ON CONFLICT (route_id) DO NOTHING;

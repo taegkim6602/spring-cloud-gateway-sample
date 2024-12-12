@@ -5,9 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.*;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
@@ -15,32 +13,60 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Configuration
 public class RedisGatewayConfig {
 
-    @Value("${spring.redis.host}")
-    private String redisHost;
+    @Value("${redis.mode:master}")
+    private String redisMode;
 
-    @Value("${spring.redis.port}")
-    private int redisPort;
-
-    @Value("${spring.redis.password}")
+    @Value("${redis.password}")
     private String redisPassword;
 
-    @Bean
-    @Primary
-    public RedisStandaloneConfiguration redisStandaloneConfiguration() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(redisHost);
-        config.setPort(redisPort);
-        config.setPassword(redisPassword);
-        return config;
-    }
+    @Value("${spring.redis.sentinel.master:#{null}}")
+    private String sentinelMaster;
+
+    @Value("${spring.redis.sentinel.nodes:#{null}}")
+    private String sentinelNodes;
+
+    @Value("${redis.port:6379}")
+    private int redisPort;
 
     @Bean
     @Primary
-    public RedisConnectionFactory redisConnectionFactory(RedisStandaloneConfiguration redisStandaloneConfiguration) {
-        return new LettuceConnectionFactory(redisStandaloneConfiguration);
+    public RedisConnectionFactory redisConnectionFactory() {
+        if (sentinelMaster != null && sentinelNodes != null) {
+            return createSentinelConnectionFactory();
+        } else {
+            return createStandaloneConnectionFactory();
+        }
+    }
+
+    private RedisConnectionFactory createSentinelConnectionFactory() {
+        RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration();
+        sentinelConfig.setMaster(sentinelMaster);
+        sentinelConfig.setSentinels(createSentinels());
+        sentinelConfig.setPassword(RedisPassword.of(redisPassword));
+        
+        return new LettuceConnectionFactory(sentinelConfig);
+    }
+
+    private List<RedisNode> createSentinels() {
+        List<RedisNode> sentinels = new ArrayList<>();
+        for (String node : sentinelNodes.split(",")) {
+            String[] parts = node.trim().split(":");
+            sentinels.add(new RedisNode(parts[0], Integer.parseInt(parts[1])));
+        }
+        return sentinels;
+    }
+
+    private RedisConnectionFactory createStandaloneConnectionFactory() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setPort(redisPort);
+        config.setPassword(redisPassword);
+        return new LettuceConnectionFactory(config);
     }
 
     @Bean
@@ -81,3 +107,4 @@ public class RedisGatewayConfig {
         return new ReactiveStringRedisTemplate((ReactiveRedisConnectionFactory) connectionFactory);
     }
 }
+

@@ -67,6 +67,17 @@ spring:
         min-idle: 2
         max-wait: -1ms
     connect-timeout: 5000
+    cache:
+      time-to-live: 3600
+      enable-warm-up: true
+      warm-up-retry-count: 3
+      warm-up-retry-delay: 5000
+      cache-prefix: "route:"
+      lock-key: "cache_warming_lock"
+      lock-timeout: 30000
+      batch-size: 1000
+      health-check-interval: 300000 # 5 minutes
+      expiration-warning-threshold: 300
 
 server:
   port: ${SERVER_PORT:8080}
@@ -130,3 +141,4 @@ logging:
     redis.clients: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
