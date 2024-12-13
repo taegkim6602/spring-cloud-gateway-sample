@@ -34,7 +34,7 @@ public class RouteManager {
     private final RedisMessageListenerContainer messageListenerContainer;
     private final ApplicationEventPublisher eventPublisher;
     private static final String ROUTE_CHANNEL = "route:updates";
-    private static final String ROUTE_KEY_PREFIX = "route:definition:";
+    public static final String ROUTE_KEY_PREFIX = "route:";
     private static final Logger log = LoggerFactory.getLogger(RouteManager.class);
 
     public RouteManager(RedisConnectionFactory connectionFactory,
@@ -198,7 +198,7 @@ public class RouteManager {
         }
     }
 
-    private void refreshRoutes() {
+    public void refreshRoutes() {
         log.info("Triggering route refresh");
         eventPublisher.publishEvent(new RefreshRoutesEvent(this));
     }

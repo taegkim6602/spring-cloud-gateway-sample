@@ -22,15 +22,7 @@ INSERT INTO routing_rules (
     filters, 
     priority, 
     is_active
-) VALUES (
-    'example_route',
-    '[{"name":"Path","args":{"pattern":"/example/**"}}]',
-    'http://example.com',
-    '[{"name":"StripPrefix","args":{"parts":"1"}}]',
-    1,
-    true
-) ,
- (
+) VALUES  (
              'dummy_route',
              '[{"name":"Path","args":{"_genkey_0":"/dummy_get/**"}}]',
              'https://dummyjson.com',

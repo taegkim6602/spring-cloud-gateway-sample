@@ -12,8 +12,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.demogateway.manager.RouteManager;
 
 import javax.annotation.PostConstruct;
+import java.time.Duration;
 import java.util.List;
 import java.net.URI;
 import java.util.ArrayList;
@@ -21,12 +23,10 @@ import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
 import org.springframework.cloud.gateway.filter.FilterDefinition;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-
 @Service
 public class CacheWarmingService {
-
     private static final Logger logger = LoggerFactory.getLogger(CacheWarmingService.class);
-    private static final String ROUTE_CACHE_PREFIX = "route:";
+    private static final String ROUTE_CACHE_PREFIX = RouteManager.ROUTE_KEY_PREFIX;
     private static final String CACHE_LOCK_KEY = "cache_warming_lock";
     private static final long LOCK_TIMEOUT = 30000; // 30 seconds
 
@@ -36,13 +36,15 @@ public class CacheWarmingService {
     private final JdbcTemplate jdbcTemplate;
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
+    private final RouteManager routeManager;
 
     public CacheWarmingService(JdbcTemplate jdbcTemplate,
                              RedisTemplate<String, String> redisTemplate,
-                             ObjectMapper objectMapper) {
+                             ObjectMapper objectMapper, RouteManager routeManager) {
         this.jdbcTemplate = jdbcTemplate;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
+        this.routeManager = routeManager;
     }
 
     @PostConstruct
@@ -69,7 +71,7 @@ public class CacheWarmingService {
         Boolean locked = redisTemplate.opsForValue().setIfAbsent(
             CACHE_LOCK_KEY,
             "LOCKED",
-            java.time.Duration.ofMillis(LOCK_TIMEOUT)
+            Duration.ofMillis(LOCK_TIMEOUT)
         );
         return Boolean.TRUE.equals(locked);
     }
@@ -92,9 +94,16 @@ public class CacheWarmingService {
                         rule.setFilters(rs.getString("filters"));
                         rule.setPriority(rs.getInt("priority"));
                         rule.setIsActive(rs.getBoolean("is_active"));
+
+                        logger.info("Loaded route from database: {}", rule.getRouteId());
+                        logger.debug("Route details - predicates: {}, uri: {}, filters: {}", 
+                                 rule.getPredicates(), rule.getUri(), rule.getFilters());
+
                         return rule;
                     }
             );
+
+            logger.info("Total rules loaded from database: {}", rules.size());
 
             redisTemplate.executePipelined((RedisCallback<?>) (connection) -> {
                 for (RoutingRule rule : rules) {
@@ -107,6 +116,7 @@ public class CacheWarmingService {
                                 cacheKey.getBytes(),
                                 routeJson.getBytes()
                         );
+                        routeManager.addRoute(routeDefinition).subscribe();
                     } catch (Exception e) {
                         logger.error("Error caching route {}: {}", rule.getRouteId(), e.getMessage());
                     }
@@ -114,6 +124,8 @@ public class CacheWarmingService {
                 return null;
             });
 
+            routeManager.refreshRoutes();
+            
             logger.info("Successfully cached {} routes at startup", rules.size());
         } catch (Exception e) {
             logger.error("Error during cache warmup: {}", e.getMessage(), e);

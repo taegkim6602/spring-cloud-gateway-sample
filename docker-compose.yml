@@ -8,14 +8,20 @@ services:
       - "5432:5432"
       - "26379:26379"
     environment:
+      # Spring configuration
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8081
       - SPRING_APPLICATION_NAME=auth-service-1
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-1:5432/authdb
+      # Database configuration
+      - SPRING_DATASOURCE_HOST=auth-service-1
+      - SPRING_DATASOURCE_PORT=5432
+      - SPRING_DATASOURCE_DB=authdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1234
+      # JPA configuration
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_SHOW_SQL=true
+      # Redis configuration
       - REDIS_MODE=master
       - REDIS_PORT=6379
       - REDIS_PASSWORD=1234
@@ -43,12 +49,17 @@ services:
       - "6380:6379"
       - "26380:26379"
     environment:
+      # Spring configuration
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8083
       - SPRING_APPLICATION_NAME=auth-service-2
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-1:5432/authdb
+      # Database configuration
+      - SPRING_DATASOURCE_HOST=auth-service-1
+      - SPRING_DATASOURCE_PORT=5432
+      - SPRING_DATASOURCE_DB=authdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1234
+      # Redis configuration
       - REDIS_MODE=slave
       - REDIS_PORT=6379
       - REDIS_PASSWORD=1234
@@ -79,17 +90,23 @@ services:
       - "6381:6379"
       - "26381:26379"
     environment:
+      # Spring configuration
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8080
       - SPRING_APPLICATION_NAME=gateway-service-1
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-1:5432/authdb
+      # Database configuration
+      - SPRING_DATASOURCE_HOST=auth-service-1
+      - SPRING_DATASOURCE_PORT=5432
+      - SPRING_DATASOURCE_DB=authdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1234
+      # Redis configuration
       - REDIS_MODE=master
       - REDIS_PORT=6379
       - REDIS_PASSWORD=1234
       - REDIS_SENTINEL_PORT=26379
       - SPRING_REDIS_SENTINEL_NODES=gateway-service-1:26379,gateway-service-2:26379
+      # Logging configuration
       - LOGGING_FILE_NAME=/var/log/spring-cloud-gateway.log
       - 'LOGGING_PATTERN_CONSOLE={"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","message":"%m","logger":"%c","spring.application.name":"$${spring.application.name}"}%n'
     volumes:
@@ -122,18 +139,24 @@ services:
       - "6382:6379"
       - "26382:26379"
     environment:
+      # Spring configuration
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8082
       - SPRING_APPLICATION_NAME=gateway-service-2
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://auth-service-1:5432/authdb
+      # Database configuration
+      - SPRING_DATASOURCE_HOST=auth-service-1
+      - SPRING_DATASOURCE_PORT=5432
+      - SPRING_DATASOURCE_DB=authdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=1234
+      # Redis configuration
       - REDIS_MODE=slave
       - REDIS_PORT=6379
       - REDIS_PASSWORD=1234
       - REDIS_SENTINEL_PORT=26379
       - REDIS_MASTER_HOST=gateway-service-1
       - SPRING_REDIS_SENTINEL_NODES=gateway-service-1:26379,gateway-service-2:26379
+      # Logging configuration
       - LOGGING_FILE_NAME=/var/log/spring-cloud-gateway.log
       - 'LOGGING_PATTERN_CONSOLE={"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","message":"%m","logger":"%c","spring.application.name":"$${spring.application.name}"}%n'
     volumes:
