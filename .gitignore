@@ -23,3 +23,5 @@ temp/
 .DS_Store
 **/.DS_Store
 logs/
+gateway-server/log/
+script/

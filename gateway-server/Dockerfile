@@ -18,6 +18,7 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y \
     redis-server \
+    redis-sentinel \  
     postgresql-client \
     netcat-openbsd \
     curl \
@@ -25,9 +26,6 @@ RUN apt-get update && \
 
 # Create necessary directories
 RUN mkdir -p /etc/redis /var/log /data/redis
-
-# Copy Redis configuration
-COPY ./redis-config/redis.conf /etc/redis/redis.conf
 
 # Copy application files
 COPY --from=build /app/target/*.jar app.jar
@@ -38,7 +36,7 @@ COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
 # Expose ports for the application and Redis
-EXPOSE 8080 6379
+EXPOSE 8080 6379 26379
 
 # Use the startup script as entrypoint
 ENTRYPOINT ["/app/start.sh"]

@@ -59,7 +59,10 @@ spring:
     host: ${SPRING_REDIS_HOST:localhost}
     port: ${SPRING_REDIS_PORT:6379}
     password: ${SPRING_REDIS_PASSWORD:1234}
-    timeout: 2000
+    sentinel:
+      master: gateway-master
+      nodes: gateway-service-1:26379,gateway-service-2:26379
+    timeout: 10000
     lettuce:
       pool:
         max-active: 8

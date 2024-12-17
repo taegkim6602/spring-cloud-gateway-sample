@@ -105,31 +105,24 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=1234
       - REDIS_SENTINEL_PORT=26379
+      - SPRING_REDIS_SENTINEL_MASTER=gateway-master
       - SPRING_REDIS_SENTINEL_NODES=gateway-service-1:26379,gateway-service-2:26379
-      # Logging configuration
-      - LOGGING_FILE_NAME=/var/log/spring-cloud-gateway.log
-      - 'LOGGING_PATTERN_CONSOLE={"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","message":"%m","logger":"%c","spring.application.name":"$${spring.application.name}"}%n'
+      - SPRING_REDIS_PASSWORD=1234
     volumes:
       - ./redis/gateway-master.conf:/etc/redis/redis.conf
       - ./redis/gateway-sentinel.conf:/etc/redis/sentinel.conf
       - ./redis/gateway-data-1:/data
-      - gateway1_logs:/var/log
+      - gateway1_logs:/app/log
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "1234", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a 1234 ping"]
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
     depends_on:
       auth-service-1:
         condition: service_healthy
-      prometheus:
-        condition: service_started
-      loki:
-        condition: service_healthy
-      grafana:
-        condition: service_started
 
   gateway-service-2:
     image: spring-cloud-gateway-basic
@@ -155,31 +148,24 @@ services:
       - REDIS_PASSWORD=1234
       - REDIS_SENTINEL_PORT=26379
       - REDIS_MASTER_HOST=gateway-service-1
+      - SPRING_REDIS_SENTINEL_MASTER=gateway-master
       - SPRING_REDIS_SENTINEL_NODES=gateway-service-1:26379,gateway-service-2:26379
-      # Logging configuration
-      - LOGGING_FILE_NAME=/var/log/spring-cloud-gateway.log
-      - 'LOGGING_PATTERN_CONSOLE={"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","message":"%m","logger":"%c","spring.application.name":"$${spring.application.name}"}%n'
+      - SPRING_REDIS_PASSWORD=1234
     volumes:
       - ./redis/gateway-slave.conf:/etc/redis/redis.conf
       - ./redis/gateway-sentinel.conf:/etc/redis/sentinel.conf
       - ./redis/gateway-data-2:/data
-      - gateway2_logs:/var/log
+      - gateway2_logs:/app/log
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "1234", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a 1234 ping"]
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
     depends_on:
       gateway-service-1:
         condition: service_healthy
-      prometheus:
-        condition: service_started
-      loki:
-        condition: service_healthy
-      grafana:
-        condition: service_started
 
   nginx:
     image: nginx:latest

@@ -1,11 +1,15 @@
 package com.example.demogateway.config;
 
+import io.lettuce.core.ReadFrom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.*;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
@@ -13,16 +17,23 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.time.Duration;
+import java.util.Arrays;
 
 @Configuration
 public class RedisGatewayConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(RedisGatewayConfig.class);
+
     @Value("${redis.mode:master}")
     private String redisMode;
 
-    @Value("${redis.password}")
+    @Value("${spring.redis.password}")
     private String redisPassword;
 
     @Value("${spring.redis.sentinel.master:#{null}}")
@@ -31,42 +42,66 @@ public class RedisGatewayConfig {
     @Value("${spring.redis.sentinel.nodes:#{null}}")
     private String sentinelNodes;
 
-    @Value("${redis.port:6379}")
-    private int redisPort;
+    @PostConstruct
+    public void testConnection() {
+        logger.info("Testing Redis Sentinel connection...");
+        logger.info("Sentinel master: {}", sentinelMaster);
+        logger.info("Sentinel nodes: {}", sentinelNodes);
+
+        String[] nodes = sentinelNodes.split(",");
+        for (String node : nodes) {
+            String[] hostPort = node.trim().split(":");
+            String host = hostPort[0];
+            int port = Integer.parseInt(hostPort[1]);
+
+            try (Socket socket = new Socket()) {
+                logger.info("Attempting to connect to sentinel {}:{}", host, port);
+                socket.connect(new InetSocketAddress(host, port), 3000);
+                logger.info("Successfully connected to sentinel {}:{}", host, port);
+
+                // Try Redis CLI command
+                Process process = Runtime.getRuntime().exec(
+                        String.format("redis-cli -h %s -p %d -a %s ping",
+                                host, port, redisPassword)
+                );
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream()))) {
+                    String line = reader.readLine();
+                    logger.info("Redis CLI response from {}:{}: {}", host, port, line);
+                }
+            } catch (Exception e) {
+                logger.error("Failed to connect to sentinel {}:{}", host, port, e);
+            }
+        }
+    }
 
     @Bean
     @Primary
     public RedisConnectionFactory redisConnectionFactory() {
-        if (sentinelMaster != null && sentinelNodes != null) {
-            return createSentinelConnectionFactory();
-        } else {
-            return createStandaloneConnectionFactory();
-        }
-    }
+        RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
+                .master(sentinelMaster);
 
-    private RedisConnectionFactory createSentinelConnectionFactory() {
-        RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration();
-        sentinelConfig.setMaster(sentinelMaster);
-        sentinelConfig.setSentinels(createSentinels());
-        sentinelConfig.setPassword(RedisPassword.of(redisPassword));
-        
-        return new LettuceConnectionFactory(sentinelConfig);
-    }
+        // Configure sentinels
+        Arrays.stream(sentinelNodes.split(","))
+                .map(node -> {
+                    String[] parts = node.trim().split(":");
+                    return new RedisNode(parts[0], Integer.parseInt(parts[1]));
+                })
+                .forEach(sentinel -> {
+                    sentinelConfig.sentinel(sentinel);
+                    logger.info("Added sentinel: {}:{}", sentinel.getHost(), sentinel.getPort());
+                });
 
-    private List<RedisNode> createSentinels() {
-        List<RedisNode> sentinels = new ArrayList<>();
-        for (String node : sentinelNodes.split(",")) {
-            String[] parts = node.trim().split(":");
-            sentinels.add(new RedisNode(parts[0], Integer.parseInt(parts[1])));
-        }
-        return sentinels;
-    }
+        // Set passwords
+        sentinelConfig.setPassword(redisPassword);
+        sentinelConfig.setSentinelPassword(redisPassword);
 
-    private RedisConnectionFactory createStandaloneConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setPort(redisPort);
-        config.setPassword(redisPassword);
-        return new LettuceConnectionFactory(config);
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .readFrom(ReadFrom.MASTER_PREFERRED)
+                .commandTimeout(Duration.ofSeconds(20))
+                .build();
+
+        return new LettuceConnectionFactory(sentinelConfig, clientConfig);
     }
 
     @Bean
@@ -74,10 +109,12 @@ public class RedisGatewayConfig {
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
+
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(new StringRedisSerializer());
+
         template.afterPropertiesSet();
         return template;
     }

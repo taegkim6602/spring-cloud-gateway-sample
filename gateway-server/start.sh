@@ -1,14 +1,24 @@
 #!/bin/bash
 
-# Start Redis server with custom configuration
+# Start Redis server in background
 redis-server /etc/redis/redis.conf &
 
 # Wait for Redis to be ready
-while ! nc -z localhost 6379; do
-  echo "Waiting for Redis to start..."
-  sleep 1
+while ! redis-cli -a 1234 ping > /dev/null 2>&1; do
+    echo "Waiting for Redis to start..."
+    sleep 1
 done
 echo "Redis is ready!"
+
+# Start Redis Sentinel in background
+redis-sentinel /etc/redis/sentinel.conf &
+
+# Wait for Sentinel to be ready
+while ! redis-cli -p 26379 ping > /dev/null 2>&1; do
+    echo "Waiting for Sentinel to start..."
+    sleep 1
+done
+echo "Redis Sentinel is ready!"
 
 # Wait for auth-service PostgreSQL to be ready
 until PGPASSWORD=1234 pg_isready -h auth-service-1 -U postgres -d authdb
@@ -28,8 +38,4 @@ else
 fi
 
 # Start the Spring application
-java -jar app.jar
-
-
-
-
+exec java -jar app.jar
